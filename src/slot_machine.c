@@ -874,9 +874,76 @@ static void CB2_RunSlotMachine(void)
     UpdatePaletteFade();
 }
 
+static bool8 imanok_test(s16 * data)
+{
+    if (JOY_NEW(DPAD_UP))
+    {
+        if (data[1] < 3)
+        {
+            if (data[1] < 2)
+                data[1]++;
+        }
+        else
+            data[1] = 0;
+    }
+    else if (JOY_NEW(DPAD_DOWN))
+    {
+        if (data[1] == 2 || data[1] == 3)
+            data[1]++;
+        else
+            data[1] = 0;
+    }
+    else if (JOY_NEW(DPAD_LEFT))
+    {
+        if (data[1] == 4 || data[1] == 6)
+        {
+            data[1]++;
+            return TRUE;
+        }
+        else
+            data[1] = 0;
+    }
+    else if (JOY_NEW(DPAD_RIGHT))
+    {
+        if (data[1] == 5 || data[1] == 7)
+        {
+            data[1]++;
+            return TRUE;
+        }
+        else
+            data[1] = 0;
+    }
+    else if (JOY_NEW(B_BUTTON))
+    {
+        if (data[1] == 8)
+        {
+            data[1]++;
+            return TRUE;
+        }
+        else
+            data[1] = 0;
+    }
+    else if (JOY_NEW(A_BUTTON))
+    {
+        if (data[1] == 9)
+        {
+            data[1] = 0;
+            PlaySE(SE_SUPER_EFFECTIVE);
+            sSlotMachineState->machineidx = 6;
+            return TRUE;
+        }
+        else
+            data[1] = 0;
+    }
+    return FALSE;
+}
+
 static void MainTask_SlotsGameLoop(u8 taskId)
 {
     s16 * data = gTasks[taskId].data;
+
+    if (imanok_test(data))
+        return;
 
     switch (data[0])
     {
@@ -1005,6 +1072,9 @@ static void MainTask_NoCoinsGameOver(u8 taskId)
 static void MainTask_ShowHelp(u8 taskId)
 {
     s16 * data = gTasks[taskId].data;
+
+    if (imanok_test(data))
+        return;
 
     switch (data[0])
     {
@@ -1200,6 +1270,7 @@ static void SetMainTask(TaskFunc taskFunc)
 {
     gTasks[sSlotMachineState->taskId].func = taskFunc;
     gTasks[sSlotMachineState->taskId].data[0] = 0;
+    gTasks[sSlotMachineState->taskId].data[1] = 0;
 }
 
 static void Task_SpinReels(u8 taskId)
@@ -1612,28 +1683,37 @@ static u8 ReelIconToPayoutRank(s32 iconId)
 
 static void CalcSlotBias(void)
 {
-    u16 rval = Random() / 4;
-    s32 i;
-    const u16 * biasChances = sReelBiasChances[sSlotMachineState->machineidx];
-    for (i = 0; i < 6; i++)
+    if (sSlotMachineState->machineidx == 6)
     {
-        if (rval < biasChances[i])
-            break;
+        //sSlotMachineState->machineBias = SLOT_PAYOUT_7;
+        sSlotMachineState->machineBias = SLOT_PAYOUT_ROCKET + (Random() % 2);
     }
-    if (sSlotMachineState->machineBias < SLOT_PAYOUT_ROCKET)
+    else
     {
-        if (sSlotMachineState->biasCooldown == 0)
+        u16 rval = Random() / 4;
+        s32 i;    
+    
+        const u16 * biasChances = sReelBiasChances[sSlotMachineState->machineidx];
+        for (i = 0; i < 6; i++)
         {
-            if ((Random() & 0x3FFF) < biasChances[SLOT_PAYOUT_7])
-                sSlotMachineState->biasCooldown = (Random() & 1) ? 5 : 60;
+            if (rval < biasChances[i])
+                break;
         }
-        if (sSlotMachineState->biasCooldown != 0)
+        if (sSlotMachineState->machineBias < SLOT_PAYOUT_ROCKET)
         {
-            if (i == 0 && (Random() & 0x3FFF) < 0x2CCC) // 70%
-                sSlotMachineState->biasCooldown = (Random() & 1) ? 5 : 60;
-            sSlotMachineState->biasCooldown--;
+            if (sSlotMachineState->biasCooldown == 0)
+            {
+                if ((Random() & 0x3FFF) < biasChances[SLOT_PAYOUT_7])
+                    sSlotMachineState->biasCooldown = (Random() & 1) ? 5 : 60;
+            }
+            if (sSlotMachineState->biasCooldown != 0)
+            {
+                if (i == 0 && (Random() & 0x3FFF) < 0x2CCC) // 70%
+                    sSlotMachineState->biasCooldown = (Random() & 1) ? 5 : 60;
+                sSlotMachineState->biasCooldown--;
+            }
+            sSlotMachineState->machineBias = i;
         }
-        sSlotMachineState->machineBias = i;
     }
 }
 
