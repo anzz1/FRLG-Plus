@@ -1481,6 +1481,21 @@ static void StopReel3(u16 whichReel)
         if (testPos < 0)
             testPos = 20;
     }
+    if (sSlotMachineState->machineidx == 6 && numPossiblePositions == 0)
+    {
+        testPos = nextPos;
+        for (i = 0; i < 5; i++)
+        {
+            if (OneReelBiasCheck(whichReel, testPos, 9))
+            {
+                possiblePositions[numPossiblePositions] = i;
+                numPossiblePositions++;
+            }
+            testPos--;
+            if (testPos < 0)
+                testPos = 20;
+        }
+    }
     if (numPossiblePositions == 0)
     {
         if (sSlotMachineState->machineBias == SLOT_PAYOUT_ROCKET || sSlotMachineState->machineBias == SLOT_PAYOUT_7)
@@ -1627,6 +1642,13 @@ static bool32 OneReelBiasCheck(s32 reelId, s32 reelPos, s32 biasIcon)
         for (i = 0; i < 5; i++)
         {
             if (icons[sThirdReelBiasCheckIndices[i][0]] == icons[sThirdReelBiasCheckIndices[i][1]] && TestReelIconAttribute(biasIcon, icons[sThirdReelBiasCheckIndices[i][0]]))
+                return TRUE;
+        }
+        return FALSE;
+    case 9:
+        for (i = 0; i < 5; i++)
+        {
+            if (icons[sThirdReelBiasCheckIndices[i][0]] == icons[sThirdReelBiasCheckIndices[i][1]] && icons[sThirdReelBiasCheckIndices[i][0]] == icons[sThirdReelBiasCheckIndices[i][2]])
                 return TRUE;
         }
         return FALSE;
