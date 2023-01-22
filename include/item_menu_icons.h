@@ -3,6 +3,8 @@
 
 #include "global.h"
 
+#define ITEMICON_TAG 0x0066
+
 extern const struct CompressedSpriteSheet gSpriteSheet_Backpack;
 extern const struct CompressedSpriteSheet gSpriteSheet_Satchel;
 extern const struct CompressedSpritePalette gSpritePalette_BagOrSatchel;
@@ -24,5 +26,7 @@ void sub_8098528(u8);
 void sub_8098580(void);
 const void * GetItemIconGfxPtr(u16 itemId, u8 ptrId);
 void CreateBagOrSatchelSprite(u8 animNum);
+void CreateItemIconOnFindMessage(void);
+void DestroyItemIconOnFindMessage(void);
 
 #endif // GUARD_ITEM_MENU_ICONS
