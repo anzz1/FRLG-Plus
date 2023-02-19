@@ -197,7 +197,7 @@ static const struct WindowTemplate gUnknown_8248330[] = {
         .height = 2,
         .paletteNum = 5,
         .baseBlock = 0x330
-    }, {
+    }, { // 7
         .bg = 0,
         .tilemapLeft = 21,
         .tilemapTop = 55,
@@ -205,15 +205,15 @@ static const struct WindowTemplate gUnknown_8248330[] = {
         .height = 2,
         .paletteNum = 5,
         .baseBlock = 0x290
-    }, {
+    }, { // 8
         .bg = 0,
-        .tilemapLeft = 23,
+        .tilemapLeft = 21,
         .tilemapTop = 57,
-        .width = 6,
+        .width = 5,
         .height = 2,
-        .paletteNum = 5,
+        .paletteNum = 0x0d,
         .baseBlock = 0x296
-    }, {
+    }, { // 9
         .bg = 0,
         .tilemapLeft = 24,
         .tilemapTop = 55,
@@ -221,9 +221,9 @@ static const struct WindowTemplate gUnknown_8248330[] = {
         .height = 2,
         .paletteNum = 5,
         .baseBlock = 0x2a6
-    }, {
+    }, { // 10
         .bg = 0,
-        .tilemapLeft = 21,
+        .tilemapLeft = 27,
         .tilemapTop = 57,
         .width = 2,
         .height = 2,

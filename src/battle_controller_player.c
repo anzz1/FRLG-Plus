@@ -22,6 +22,7 @@
 #include "constants/items.h"
 #include "constants/moves.h"
 #include "constants/songs.h"
+#include "menu.h"
 
 static void PlayerHandleGetMonData(void);
 static void PlayerHandleSetMonData(void);
@@ -360,7 +361,7 @@ static void HandleInputChooseTarget(void)
         DoBounceEffect(gActiveBattler, BOUNCE_HEALTHBOX, 7, 1);
         DoBounceEffect(gActiveBattler, BOUNCE_MON, 7, 1);
         EndBounceEffect(gMultiUsePlayerCursor, BOUNCE_HEALTHBOX);
-		MoveSelectionDisplayMoveType();
+        MoveSelectionDisplayMoveType();
     }
     else if (JOY_NEW(DPAD_LEFT | DPAD_UP))
     {
@@ -401,7 +402,7 @@ static void HandleInputChooseTarget(void)
         }
         while (i == 0);
         gSprites[gBattlerSpriteIds[gMultiUsePlayerCursor]].callback = SpriteCb_ShowAsMoveTarget;
-		MoveSelectionDisplayMoveType();
+        MoveSelectionDisplayMoveType();
     }
     else if (JOY_NEW(DPAD_RIGHT | DPAD_DOWN))
     {
@@ -442,7 +443,7 @@ static void HandleInputChooseTarget(void)
         }
         while (i == 0);
         gSprites[gBattlerSpriteIds[gMultiUsePlayerCursor]].callback = SpriteCb_ShowAsMoveTarget;
-		MoveSelectionDisplayMoveType();
+        MoveSelectionDisplayMoveType();
     }
 }
 
@@ -1413,10 +1414,10 @@ static void MoveSelectionDisplayPpNumber(void)
 
 static void MoveSelectionDisplayMoveType(void)
 {
-    u8 *txtPtr;
+    //u8 *txtPtr;
     struct ChooseMoveStruct *moveInfo = (struct ChooseMoveStruct *)(&gBattleBufferA[gActiveBattler][4]);
 
-    txtPtr = StringCopy(gDisplayedStringBattle, gText_MoveInterfaceType);
+    /*txtPtr = StringCopy(gDisplayedStringBattle, gText_MoveInterfaceType);
     *txtPtr++ = EXT_CTRL_CODE_BEGIN;
     *txtPtr++ = 6;
     *txtPtr++ = 1;
@@ -1439,9 +1440,14 @@ static void MoveSelectionDisplayMoveType(void)
     else
     {
         StringCopy(txtPtr, gTypeNames[gBattleMoves[moveInfo->moves[gMoveSelectionCursor[gActiveBattler]]].type]);
-    }
-    BattlePutTextOnWindow(gDisplayedStringBattle, 8);
-	MoveSelectionDisplaySplitIcon();
+    }*/
+    ListMenuLoadStdPalAt(0xD0, 1);
+    FillWindowPixelBuffer(8, PIXEL_FILL(15));
+    BlitMoveInfoIcon(8, gBattleMoves[moveInfo->moves[gMoveSelectionCursor[gActiveBattler]]].type + 1, 1, 4);
+    PutWindowTilemap(8);
+    CopyWindowToVram(8, COPYWIN_BOTH);
+    //BattlePutTextOnWindow(gDisplayedStringBattle, 8);
+    MoveSelectionDisplaySplitIcon();
 }
 
 void MoveSelectionCreateCursorAt(u8 cursorPosition, u8 arg1)
@@ -2996,16 +3002,16 @@ static void PreviewDeterminativeMoveTargets(void)
 
 static void MoveSelectionDisplaySplitIcon(void)
 {
-	static const u16 sSplitIcons_Pal[] = INCBIN_U16("graphics/interface/split_icons_battle.gbapal");
-	static const u8 sSplitIcons_Gfx[] = INCBIN_U8("graphics/interface/split_icons_battle.4bpp");
-	struct ChooseMoveStruct *moveInfo;
-	int icon;
+    static const u16 sSplitIcons_Pal[] = INCBIN_U16("graphics/interface/split_icons_battle.gbapal");
+    static const u8 sSplitIcons_Gfx[] = INCBIN_U8("graphics/interface/split_icons_battle.4bpp");
+    struct ChooseMoveStruct *moveInfo;
+    int icon;
 
-	moveInfo = (struct ChooseMoveStruct*)(&gBattleBufferA[gActiveBattler][4]);
-	icon = GetBattleMoveCategory(moveInfo->moves[gMoveSelectionCursor[gActiveBattler]]);
-	LoadPalette(sSplitIcons_Pal, 10 * 0x10, 0x20);
-	FillWindowPixelBuffer(10, PIXEL_FILL(7));
-	BlitBitmapToWindow(10, sSplitIcons_Gfx + 0x80 * icon, 0, 0, 16, 16);
-	PutWindowTilemap(10);
-	CopyWindowToVram(10, 3);
+    moveInfo = (struct ChooseMoveStruct*)(&gBattleBufferA[gActiveBattler][4]);
+    icon = GetBattleMoveCategory(moveInfo->moves[gMoveSelectionCursor[gActiveBattler]]);
+    LoadPalette(sSplitIcons_Pal, 10 * 0x10, 0x20);
+    FillWindowPixelBuffer(10, PIXEL_FILL(9));
+    BlitBitmapToWindow(10, sSplitIcons_Gfx + 0x80 * icon, 0, 3, 16, 16);
+    PutWindowTilemap(10);
+    CopyWindowToVram(10, COPYWIN_BOTH);
 }
