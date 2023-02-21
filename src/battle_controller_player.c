@@ -1413,14 +1413,34 @@ static void MoveSelectionDisplayPpNumber(void)
 
 static void MoveSelectionDisplayMoveType(void)
 {
-    int icon;
+    u8 icon;
+    u8 type;
     static const u8 sSplitIcons_Gfx[] = INCBIN_U8("graphics/interface/split_icons_battle.4bpp");
     struct ChooseMoveStruct *moveInfo = (struct ChooseMoveStruct *)(&gBattleBufferA[gActiveBattler][4]);
 
-    ListMenuLoadStdPalAt(0xA0, 1);
+    if (moveInfo->moves[gMoveSelectionCursor[gActiveBattler]] == MOVE_HIDDEN_POWER)
+    {
+        u8 typeBits  = ((GetMonData(&gPlayerParty[gBattlerPartyIndexes[gActiveBattler]], MON_DATA_HP_IV) & 1) << 0)
+                     | ((GetMonData(&gPlayerParty[gBattlerPartyIndexes[gActiveBattler]], MON_DATA_ATK_IV) & 1) << 1)
+                     | ((GetMonData(&gPlayerParty[gBattlerPartyIndexes[gActiveBattler]], MON_DATA_DEF_IV) & 1) << 2)
+                     | ((GetMonData(&gPlayerParty[gBattlerPartyIndexes[gActiveBattler]], MON_DATA_SPEED_IV) & 1) << 3)
+                     | ((GetMonData(&gPlayerParty[gBattlerPartyIndexes[gActiveBattler]], MON_DATA_SPATK_IV) & 1) << 4)
+                     | ((GetMonData(&gPlayerParty[gBattlerPartyIndexes[gActiveBattler]], MON_DATA_SPDEF_IV) & 1) << 5);
 
+        type = (15 * typeBits) / 63 + 1;
+        if (type >= TYPE_MYSTERY)
+            type++;
+        type |= 0xC0;
+        type &= 0x3F;
+    }
+    else
+    {
+        type = gBattleMoves[moveInfo->moves[gMoveSelectionCursor[gActiveBattler]]].type;
+    }
+
+    ListMenuLoadStdPalAt(0xA0, 1);
     FillWindowPixelBuffer(8, PIXEL_FILL(15));
-    BlitMoveInfoIcon(8, gBattleMoves[moveInfo->moves[gMoveSelectionCursor[gActiveBattler]]].type + 1, 1, 4);
+    BlitMoveInfoIcon(8, type + 1, 1, 4);
     PutWindowTilemap(8);
     CopyWindowToVram(8, COPYWIN_BOTH);
 
