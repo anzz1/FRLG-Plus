@@ -211,7 +211,7 @@ static const struct WindowTemplate gUnknown_8248330[] = {
         .tilemapTop = 57,
         .width = 5,
         .height = 2,
-        .paletteNum = 0x0d,
+        .paletteNum = 10,
         .baseBlock = 0x296
     }, { // 9
         .bg = 0,
