@@ -24,6 +24,9 @@
 #include "constants/songs.h"
 #include "menu.h"
 
+#define EXPOSE_NATURE_POWER
+#define EXPOSE_WEATHER_BALL
+
 static void PlayerHandleGetMonData(void);
 static void PlayerHandleSetMonData(void);
 static void PlayerHandleSetRawMonData(void);
@@ -1433,6 +1436,27 @@ static void MoveSelectionDisplayMoveType(void)
         type |= 0xC0;
         type &= 0x3F;
     }
+#ifdef EXPOSE_WEATHER_BALL
+    else if (moveInfo->moves[gMoveSelectionCursor[gActiveBattler]] == MOVE_WEATHER_BALL)
+    {
+        if (gBattleWeather & WEATHER_RAIN_ANY)
+            type = TYPE_WATER;
+        else if (gBattleWeather & WEATHER_SANDSTORM_ANY)
+            type = TYPE_ROCK;
+        else if (gBattleWeather & WEATHER_SUN_ANY)
+            type = TYPE_FIRE;
+        else if (gBattleWeather & WEATHER_HAIL_ANY)
+            type = TYPE_ICE;
+        else
+            type = TYPE_NORMAL;
+    }
+#endif
+#ifdef EXPOSE_NATURE_POWER
+    else if (moveInfo->moves[gMoveSelectionCursor[gActiveBattler]] == MOVE_NATURE_POWER)
+    {
+        type = gBattleMoves[gNaturePowerMoves[gBattleTerrain]].type;
+    }
+#endif
     else
     {
         type = gBattleMoves[moveInfo->moves[gMoveSelectionCursor[gActiveBattler]]].type;
