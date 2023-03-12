@@ -454,4 +454,5 @@ gSpecials:: @ 815FD60
 	def_special CreateEventLegalEnemyMon
 	def_special DoesGiftMonHaveItem
 	def_special PutGiftMonItemInBag
+	def_special DeletePartyMonSpecial
 gSpecialsEnd::

@@ -2831,3 +2831,8 @@ static const u8 gTitleNames[][18] = {
     _("MEW MASTER"),
     _("GRAND MASTER"),
 };
+
+void DeletePartyMonSpecial(void)
+{
+    DeletePlayerPartyMon(gSpecialVar_0x8004);
+}

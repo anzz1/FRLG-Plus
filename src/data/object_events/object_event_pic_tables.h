@@ -2394,3 +2394,15 @@ const struct SpriteFrameImage gObjectEventPicTable_Brandon[] = {
     overworld_frame(gObjectEventPic_Brandon, 2, 4, 8),
     overworld_frame(gObjectEventPic_Brandon, 2, 4, 9),
 };
+
+const struct SpriteFrameImage gObjectEventPicTable_Paras[] = {
+    overworld_frame(gObjectEventPic_Paras, 2, 2, 0),
+    overworld_frame(gObjectEventPic_Paras, 2, 2, 1),
+    overworld_frame(gObjectEventPic_Paras, 2, 2, 2),
+    overworld_frame(gObjectEventPic_Paras, 2, 2, 0),
+    overworld_frame(gObjectEventPic_Paras, 2, 2, 0),
+    overworld_frame(gObjectEventPic_Paras, 2, 2, 1),
+    overworld_frame(gObjectEventPic_Paras, 2, 2, 1),
+    overworld_frame(gObjectEventPic_Paras, 2, 2, 2),
+    overworld_frame(gObjectEventPic_Paras, 2, 2, 2),
+};
