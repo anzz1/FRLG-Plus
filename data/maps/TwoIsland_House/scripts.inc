@@ -2,11 +2,18 @@
 .equ HAS_BIG_MUSHROOM,   FLAG_TEMP_2
 .equ HAS_TINY_MUSHROOMS, FLAG_TEMP_3
 .equ HAS_BOTH_MUSHROOMS, FLAG_TEMP_4
+.equ HEARD_STORY, FLAG_TEMP_5
+.equ LOCALID_PARAS_1, 3
+.equ LOCALID_PARAS_2, 4
+.equ LOCALID_PARAS_3, 5
+.equ LOCALID_PARAS_4, 6
+.equ LOCALID_PARAS_5, 7
+.equ QUEST_NOT_COMPLETE, FLAG_HIDE_TWO_ISLAND_HOUSE_PARAS_5
 
-TwoIsland_House_MapScripts:: @ 8171618
+TwoIsland_House_MapScripts::
 	.byte 0
 
-TwoIsland_House_EventScript_MoveManiac:: @ 8171619
+TwoIsland_House_EventScript_MoveManiac::
 	goto_if_questlog EventScript_ReleaseEnd
 	special QuestLog_CutRecording
 	lock
@@ -14,13 +21,14 @@ TwoIsland_House_EventScript_MoveManiac:: @ 8171619
 	clearflag HAS_BIG_MUSHROOM
 	clearflag HAS_TINY_MUSHROOMS
 	clearflag HAS_BOTH_MUSHROOMS
+	goto_if_unset QUEST_NOT_COMPLETE, TwoIsland_House_EventScript_AskTutorMon
 	goto_if_set CHECKED_MUSHROOMS, TwoIsland_House_EventScript_CheckPlayerHasMushrooms
 	msgbox TwoIsland_House_Text_TeachMonMoveForMushroom
 	setflag CHECKED_MUSHROOMS
 	goto TwoIsland_House_EventScript_CheckPlayerHasMushrooms
 	end
 
-TwoIsland_House_EventScript_CheckPlayerHasMushrooms:: @ 817164F
+TwoIsland_House_EventScript_CheckPlayerHasMushrooms::
 	checkitem ITEM_BIG_MUSHROOM, 1
 	compare VAR_RESULT, TRUE
 	call_if_eq TwoIsland_House_EventScript_SetHasBigMushroom
@@ -32,24 +40,30 @@ TwoIsland_House_EventScript_CheckPlayerHasMushrooms:: @ 817164F
 	goto TwoIsland_House_EventScript_EndTutorMove
 	end
 
-TwoIsland_House_EventScript_CheckAlsoHasTinyMushrooms:: @ 8171687
+TwoIsland_House_EventScript_CheckAlsoHasTinyMushrooms::
 	call_if_set HAS_TINY_MUSHROOMS, TwoIsland_House_EventScript_SetHasBothMushrooms
 	goto TwoIsland_House_EventScript_AskTutorMon
 	end
 
-TwoIsland_House_EventScript_CheckAlsoHasBigMushroom:: @ 8171696
+TwoIsland_House_EventScript_CheckAlsoHasBigMushroom::
 	call_if_set HAS_BIG_MUSHROOM, TwoIsland_House_EventScript_SetHasBothMushrooms
 	goto TwoIsland_House_EventScript_AskTutorMon
 	end
 
-TwoIsland_House_EventScript_AskTutorMon:: @ 81716A5
-	msgbox TwoIsland_House_Text_WantMeToTeachMove, MSGBOX_YESNO
+TwoIsland_House_EventScript_AskTutorMon::
+	call_if_unset QUEST_NOT_COMPLETE TwoIsland_House_EventScript_AskTutorMonQuestCompleted
+	call_if_set QUEST_NOT_COMPLETE TwoIsland_House_EventScript_MsgAskTutorMon
 	compare VAR_RESULT, NO
 	goto_if_eq TwoIsland_House_EventScript_EndTutorMove
 	goto TwoIsland_House_EventScript_ChooseMonToTutor
 	end
 
-TwoIsland_House_EventScript_ChooseMonToTutor:: @ 81716BE
+TwoIsland_House_EventScript_AskTutorMonQuestCompleted::
+	call_if_unset HEARD_STORY TwoIsland_House_EventScript_MsgParasAreDoingWell
+	msgbox TwoIsland_House_Text_WantMeToTeachMoveQuestCompleted, MSGBOX_YESNO
+	return
+
+TwoIsland_House_EventScript_ChooseMonToTutor::
 	setvar VAR_TEMP_0, 1
 	msgbox TwoIsland_House_Text_TutorWhichMon
 	special SelectMoveTutorMon
@@ -64,18 +78,21 @@ TwoIsland_House_EventScript_ChooseMonToTutor:: @ 81716BE
 	goto TwoIsland_House_EventScript_ChooseMoveToTeach
 	end
 
-TwoIsland_House_EventScript_ChooseMoveToTeach:: @ 81716F4
+TwoIsland_House_EventScript_ChooseMoveToTeach::
 	msgbox TwoIsland_House_Text_TeachWhichMove
 	special DisplayMoveTutorMenu
 	waitstate
 	compare VAR_0x8004, 0
 	goto_if_eq TwoIsland_House_EventScript_ChooseMonToTutor
+	goto_if_unset QUEST_NOT_COMPLETE, TwoIsland_House_EventScript_EndTutorMove
+	compare VAR_TWO_ISLAND_HOUSE_MUSHROOM_COUNTER, 5
+	call_if_lt TwoIsland_House_EventScript_AddMushRoomCount
 	goto_if_set HAS_BOTH_MUSHROOMS, TwoIsland_House_EventScript_ChooseMushroom
 	goto_if_set HAS_BIG_MUSHROOM, TwoIsland_House_EventScript_GiveBigMushroom
 	goto_if_set HAS_TINY_MUSHROOMS, TwoIsland_House_EventScript_GiveTinyMushrooms
 	end
 
-TwoIsland_House_EventScript_GiveBigMushroom:: @ 8171727
+TwoIsland_House_EventScript_GiveBigMushroom::
 	removeitem ITEM_BIG_MUSHROOM, 1
 	textcolor 3
 	msgbox TwoIsland_House_Text_HandedOverOneBigMushroom
@@ -83,7 +100,7 @@ TwoIsland_House_EventScript_GiveBigMushroom:: @ 8171727
 	goto TwoIsland_House_EventScript_EndTutorMove
 	end
 
-TwoIsland_House_EventScript_GiveTinyMushrooms:: @ 8171741
+TwoIsland_House_EventScript_GiveTinyMushrooms::
 	removeitem ITEM_TINY_MUSHROOM, 2
 	textcolor 3
 	msgbox TwoIsland_House_Text_HandedOverTwoTinyMushrooms
@@ -91,7 +108,7 @@ TwoIsland_House_EventScript_GiveTinyMushrooms:: @ 8171741
 	goto TwoIsland_House_EventScript_EndTutorMove
 	end
 
-TwoIsland_House_EventScript_ChooseMushroom:: @ 817175B
+TwoIsland_House_EventScript_ChooseMushroom::
 	message TwoIsland_House_Text_IllNeedMushroomOrTwo
 	waitmessage
 	multichoice 0, 0, MULTICHOICE_MUSHROOMS, TRUE
@@ -100,35 +117,56 @@ TwoIsland_House_EventScript_ChooseMushroom:: @ 817175B
 	case 1, TwoIsland_House_EventScript_GiveBigMushroom
 	end
 
-TwoIsland_House_EventScript_NoMoveToTutorMon:: @ 8171782
+TwoIsland_House_EventScript_NoMoveToTutorMon::
 	msgbox TwoIsland_House_Text_NoMoveICanTeachThatMon
 	goto TwoIsland_House_EventScript_ChooseMonToTutor
 	end
 
-TwoIsland_House_EventScript_CantTutorEgg:: @ 8171790
+TwoIsland_House_EventScript_CantTutorEgg::
 	msgbox TwoIsland_House_Text_CantTeachAnEgg
 	goto TwoIsland_House_EventScript_ChooseMonToTutor
 	end
 
-TwoIsland_House_EventScript_EndTutorMove:: @ 817179E
+TwoIsland_House_EventScript_EndTutorMove::
 	setvar VAR_TEMP_0, 0
+	goto_if_unset QUEST_NOT_COMPLETE, TwoIsland_House_EventScript_EndTutorMove_2
+	compare VAR_TWO_ISLAND_HOUSE_MUSHROOM_COUNTER, 5
+	goto_if_ge TwoIsland_House_EventScript_TradeParas
 	msgbox TwoIsland_House_Text_NeedMushroomOrTwoToLearnMove
 	release
 	end
 
-TwoIsland_House_EventScript_SetHasBigMushroom:: @ 81717A8
+TwoIsland_House_EventScript_EndTutorMove_2::
+	msgbox TwoIsland_House_Text_HappyToHelp
+	release
+	end
+
+TwoIsland_House_EventScript_AddMushRoomCount::
+	addvar VAR_TWO_ISLAND_HOUSE_MUSHROOM_COUNTER, 1
+	return
+
+TwoIsland_House_EventScript_MsgAskTutorMon::
+	msgbox TwoIsland_House_Text_WantMeToTeachMove, MSGBOX_YESNO
+	return
+
+TwoIsland_House_EventScript_MsgParasAreDoingWell::
+	setflag HEARD_STORY
+	msgbox TwoIsland_House_Text_ParasAreDoingWell
+	return
+
+TwoIsland_House_EventScript_SetHasBigMushroom::
 	setflag HAS_BIG_MUSHROOM
 	return
 
-TwoIsland_House_EventScript_SetHasTinyMushrooms:: @ 81717AC
+TwoIsland_House_EventScript_SetHasTinyMushrooms::
 	setflag HAS_TINY_MUSHROOMS
 	return
 
-TwoIsland_House_EventScript_SetHasBothMushrooms:: @ 81717B0
+TwoIsland_House_EventScript_SetHasBothMushrooms::
 	setflag HAS_BOTH_MUSHROOMS
 	return
 
-TwoIsland_House_EventScript_EffortWoman:: @ 81DCDE4
+TwoIsland_House_EventScript_EffortWoman::
 	lock
 	faceplayer
 	getfirstpartymonname 0
@@ -148,38 +186,96 @@ TwoIsland_House_EventScript_EffortWoman:: @ 81DCDE4
 	release
 	end
 
-TwoIsland_House_EventScript_MonEVsNotMaxed:: @ 81DCE2E
+TwoIsland_House_EventScript_MonEVsNotMaxed::
 	msgbox TwoIsland_House_Text_GoForItLittleHarder, MSGBOX_DEFAULT
 	release
 	end
 
-TwoIsland_House_EventScript_MonHasEffortRibbon:: @ 81DCE38
+TwoIsland_House_EventScript_MonHasEffortRibbon::
 	msgbox TwoIsland_House_Text_EffortRibbonLooksGoodOnIt, MSGBOX_DEFAULT
 	release
 	end
 
-TwoIsland_House_Text_OhYourPokemon: @ 81DD68A
-	.string "Oh?\n"
-	.string "Your {STR_VAR_1}…$"
+TwoIsland_House_EventScript_TradeParas::
+	call_if_set FLAG_HIDE_TWO_ISLAND_HOUSE_PARAS_1, TwoIsland_House_EventScript_ParasStory
+	msgbox TwoIsland_House_Text_PleaseTradeParas, MSGBOX_YESNO
+	compare VAR_RESULT, NO
+	goto_if_eq TwoIsland_House_EventScript_ParasDeclineTrade
+	call EventScript_ChooseMonForInGameTrade
+	compare VAR_0x8004, PARTY_SIZE
+	goto_if_ge TwoIsland_House_EventScript_ParasDeclineTrade
+	call EventScript_GetInGameTradeSpecies
+	compare VAR_RESULT, SPECIES_PARAS
+	goto_if_ne TwoIsland_House_EventScript_NotRequestedMon
+	waitse
+	playmoncry SPECIES_PARAS, 0
+	special DeletePartyMonSpecial
+	call TwoIsland_House_EventScript_AddParas
+	textcolor 3
+	msgbox TwoIsland_House_Text_HandedOverParas
+	call EventScript_RestorePrevTextColor
+	waitmoncry
+	msgbox Trade_Text_Thanks
+	release
+	end
 
-TwoIsland_House_Text_PleaseGiveItThisEffortRibbon: @ 81DD697
-	.string "Went for it stupendously!\p"
-	.string "As its reward, please give it this\n"
-	.string "EFFORT RIBBON.$"
+TwoIsland_House_EventScript_ParasStory::
+	goto_if_unset HEARD_STORY, TwoIsland_House_EventScript_ParasStory_2
+	return
 
-TwoIsland_House_Text_ReceivedEffortRibbon: @ 81DD6E3
-	.string "{COLOR DARK_GRAY}{PLAYER} received the EFFORT RIBBON.$"
+TwoIsland_House_EventScript_ParasStory_2::
+	setflag HEARD_STORY
+	msgbox TwoIsland_House_Text_ParasStory
+	return
 
-TwoIsland_House_Text_PutEffortRibbonOnMon: @ 81DD702
-	.string "{COLOR DARK_GRAY}{PLAYER} put the EFFORT RIBBON\n"
-	.string "on {STR_VAR_1}.$"
+TwoIsland_House_EventScript_ParasDeclineTrade::
+	msgbox TwoIsland_House_Text_NeedMushroomOrTwoToLearnMove
+	release
+	end
 
-TwoIsland_House_Text_GoForItLittleHarder: @ 81DD722
-	.string "You have to go for it a\n"
-	.string "little harder.\p"
-	.string "If you do, I'll give your POKéMON\n"
-	.string "something nice.$"
+TwoIsland_House_EventScript_NotRequestedMon::
+	getspeciesname 0, SPECIES_PARAS
+	msgbox Trade_Text_ThisIsntMon
+	release
+	end
 
-TwoIsland_House_Text_EffortRibbonLooksGoodOnIt: @ 81DD77B
-	.string "Oh! Your {STR_VAR_1}, that EFFORT\n"
-	.string "RIBBON looks good on it!$"
+TwoIsland_House_EventScript_Paras::
+	lock
+	faceplayer
+	waitse
+	playmoncry SPECIES_PARAS, 0
+	msgbox TwoIsland_House_Text_Paras
+	waitmoncry
+	release
+	end
+
+TwoIsland_House_EventScript_AddParas::
+	goto_if_set FLAG_HIDE_TWO_ISLAND_HOUSE_PARAS_1, TwoIsland_House_EventScript_AddParas_1
+	goto_if_set FLAG_HIDE_TWO_ISLAND_HOUSE_PARAS_2, TwoIsland_House_EventScript_AddParas_2
+	goto_if_set FLAG_HIDE_TWO_ISLAND_HOUSE_PARAS_3, TwoIsland_House_EventScript_AddParas_3
+	goto_if_set FLAG_HIDE_TWO_ISLAND_HOUSE_PARAS_4, TwoIsland_House_EventScript_AddParas_4
+	clearflag FLAG_HIDE_TWO_ISLAND_HOUSE_PARAS_5
+	clearflag HEARD_STORY
+	addobject LOCALID_PARAS_5
+	return
+
+TwoIsland_House_EventScript_AddParas_1:
+	clearflag FLAG_HIDE_TWO_ISLAND_HOUSE_PARAS_1
+	addobject LOCALID_PARAS_1
+	return
+
+TwoIsland_House_EventScript_AddParas_2:
+	clearflag FLAG_HIDE_TWO_ISLAND_HOUSE_PARAS_2
+	addobject LOCALID_PARAS_2
+	return
+
+TwoIsland_House_EventScript_AddParas_3:
+	clearflag FLAG_HIDE_TWO_ISLAND_HOUSE_PARAS_3
+	addobject LOCALID_PARAS_3
+	return
+
+TwoIsland_House_EventScript_AddParas_4:
+	clearflag FLAG_HIDE_TWO_ISLAND_HOUSE_PARAS_4
+	addobject LOCALID_PARAS_4
+	return
+

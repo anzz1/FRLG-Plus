@@ -474,6 +474,7 @@ u16 SpeciesToExtendedPokedexNum(u16 species);
 bool8 DoesCaughtMonHaveItem(void);
 void PutCaughtMonItemInBag(void);
 u8 GetLevelCap(void);
+void DeletePlayerPartyMon(u8 idx);
 
 #ifndef DAYCARE_IGNORES_LEVEL_CAP_SETTING
 u32 GetExpFromLevelForSpecies(u8 level, u16 species);

@@ -108,7 +108,7 @@ static const u8 sTextColorTable[] =
     [OBJ_EVENT_GFX_ANABEL / 2]                  = 0x01, // OBJ_EVENT_GFX_TUCKER
     [OBJ_EVENT_GFX_GRETA / 2]                   = 0x01, // OBJ_EVENT_GFX_SPENSER
     [OBJ_EVENT_GFX_NOLAND / 2]                  = 0x10, // OBJ_EVENT_GFX_LUCY
-    [OBJ_EVENT_GFX_BRANDON / 2]                 = 0x10, // OBJ_EVENT_GFX_
+    [OBJ_EVENT_GFX_BRANDON / 2]                 = 0x20, // OBJ_EVENT_GFX_PARAS
 };
 
 void DynamicPlaceholderTextUtil_Reset(void)

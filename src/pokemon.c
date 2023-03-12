@@ -8269,6 +8269,13 @@ u8 GetLevelCap(void)
     return ((gSaveBlock1Ptr->keyFlags.difficulty == DIFFICULTY_CHALLENGE) ? 15 : 14);
 }
 
+void DeletePlayerPartyMon(u8 idx)
+{
+    ZeroMonData(&gPlayerParty[idx]);
+    CompactPartySlots();
+    CalculatePlayerPartyCount();
+}
+
 #ifndef DAYCARE_IGNORES_LEVEL_CAP_SETTING
 u32 GetExpFromLevelForSpecies(u8 level, u16 species)
 {
