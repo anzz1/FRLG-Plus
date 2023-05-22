@@ -5366,12 +5366,13 @@ bool8 PokemonUseItemEffects(struct Pokemon *mon, u16 item, u8 partyIndex, u8 mov
 {
     u32 data;
     s32 dataSigned;
+    s32 evCap = 252;
     s32 friendship;
     s32 cmdIndex;
     bool8 retVal = TRUE;
     const u8 *itemEffect;
     u8 idx = 6;
-    u32 i;
+    u32 i, j;
     s8 friendshipDelta = 0;
     u8 holdEffect;
     u8 battleMonId = 4;
@@ -5379,6 +5380,8 @@ bool8 PokemonUseItemEffects(struct Pokemon *mon, u16 item, u8 partyIndex, u8 mov
     u8 val;
     u32 evDelta;
     u32 var_28 = 0;
+    s8 evChange;
+    u16 evCount;
 
     heldItem = GetMonData(mon, MON_DATA_HELD_ITEM, NULL);
     if (heldItem == ITEM_ENIGMA_BERRY)
@@ -5557,7 +5560,6 @@ bool8 PokemonUseItemEffects(struct Pokemon *mon, u16 item, u8 partyIndex, u8 mov
             {
                 if (val & 1)
                 {
-                    u16 evCount;
                     s32 r5;
      
                     switch (i)
@@ -5565,20 +5567,28 @@ bool8 PokemonUseItemEffects(struct Pokemon *mon, u16 item, u8 partyIndex, u8 mov
                     case 0: // EV_HP
                     case 1: // EV_ATK
                         evCount = GetMonEVCount(mon);
+                        j = itemEffect[idx];
                         dataSigned = GetMonData(mon, sGetMonDataEVConstants[i], NULL);
+                        evChange = j;
                         if(itemEffect[idx] != 201)
                         {
-                            if (evCount >= 510)
-                                return TRUE;
-                            if (dataSigned < 100)
+                            if (evChange > 0)
                             {
-                                if (dataSigned + itemEffect[idx] > 100)
-                                    evDelta = 100 - (dataSigned + itemEffect[idx]) + itemEffect[idx];
+                                if (evCount >= 510)
+                                    return TRUE;
+        
+                                if (dataSigned >= evCap)
+                                    break;
+        
+                                if (dataSigned + evChange > evCap)
+                                    j = evCap - (dataSigned + evChange) + evChange;
                                 else
-                                    evDelta = itemEffect[idx];
-                                if (evCount + evDelta > 510)
-                                    evDelta += 510 - (evCount + evDelta);
-                                dataSigned += evDelta;
+                                    j = evChange;
+        
+                                if (evCount + j > 510)
+                                    j += 510 - (evCount + j);
+        
+                                dataSigned += j;
                             }
                         }
                         else
@@ -5758,8 +5768,6 @@ bool8 PokemonUseItemEffects(struct Pokemon *mon, u16 item, u8 partyIndex, u8 mov
             {
                 if (val & 1)
                 {
-                    u16 evCount;
-
                     switch (i)
                     {
                     case 0: // EV_DEF
@@ -5767,20 +5775,28 @@ bool8 PokemonUseItemEffects(struct Pokemon *mon, u16 item, u8 partyIndex, u8 mov
                     case 2: // EV_SPDEF
                     case 3: // EV_SPATK
                         evCount = GetMonEVCount(mon);
+                        j = itemEffect[idx];
                         dataSigned = GetMonData(mon, sGetMonDataEVConstants[i + 2], NULL);
+                        evChange = j;
                         if(itemEffect[idx] != 201)
                         {
-                            if (evCount >= 510)
-                                return TRUE;
-                            if (dataSigned < 100)
+                            if (evChange > 0)
                             {
-                                if (dataSigned + itemEffect[idx] > 100)
-                                    evDelta = 100 - (dataSigned + itemEffect[idx]) + itemEffect[idx];
+                                if (evCount >= 510)
+                                    return TRUE;
+        
+                                if (dataSigned >= evCap)
+                                    break;
+        
+                                if (dataSigned + evChange > evCap)
+                                    j = evCap - (dataSigned + evChange) + evChange;
                                 else
-                                    evDelta = itemEffect[idx];
-                                if (evCount + evDelta > 510)
-                                    evDelta += 510 - (evCount + evDelta);
-                                dataSigned += evDelta;
+                                    j = evChange;
+        
+                                if (evCount + j > 510)
+                                    j += 510 - (evCount + j);
+        
+                                dataSigned += j;
                             }
                         }
                         else
